@@ -1,6 +1,7 @@
-#define _CRT_SECURE_NO_WARNINGS
+﻿#define _CRT_SECURE_NO_WARNINGS
 #include<iostream>
 #include"LFSR.h"
+#include"NFSR.h"
 #include"FuncReg.h"
 #include"CombFuncReg.h"
 #include<map>
@@ -14,10 +15,16 @@ bool f4(std::vector<bool> val) {
 	return (val[0] & val[1]) ^ (val[2] & val[3]);
 }
 
+bool nonLin(std::vector<bool> x) {
+	//return 1 ^ x[21] ^ (x[1] & x[2] & x[3] & x[4] & x[5] & x[6] & x[7] & x[8] & x[9] & x[10] & x[11] & x[12] & x[13] & x[14] & x[15] & x[16] & x[17] & x[18] & x[19] & x[20] & x[21]) ^ x[0];// x[3] ^ x[2] ^(x[2] & x[3]) ^ (x[1] & x[3]) ^ (x[1] & x[2]) ^ (x[1] & x[2] & x[3]) ^ x[0];
+	return 1 ^ x[1] ^ (x[1] & x[2] & x[3] & x[4] & x[5]) ^ x[0];
+}
+//x8 & x12
+//n=20 g+x4 | x18 полный
+//n=22 g+x2
 int main(int argc, char** argv) {
 
 	freopen("out.txt","w",stdout);
-
 	/*bool a = false;
 	a ^= true;
 	std::vector<bool> initial = { true,false,false,false,false,true,true,false,true,false,false,true };
@@ -34,7 +41,8 @@ int main(int argc, char** argv) {
 		printf("%d\n",afr.shift());
 	} while (afr.getReg().getState() != initial);
 	std::cout << count;
-	/*
+	
+
 	for (size_t i = 0; i < 1000; i++) {
 		if (afr.shift())
 			count++;
@@ -43,7 +51,7 @@ int main(int argc, char** argv) {
 	std::cout << count;
 	
 	
-	/*std::map<std::vector<bool>, size_t> states;
+	std::map<std::vector<bool>, size_t> states;
 	std::vector<size_t> pos = {0,5};
 	std::vector<LSFR> regs = { LSFR({0,0,1,1,0,1},pos), LSFR({1,0,0,0,1,0},pos), LSFR({1,1,1,0,0,1}, pos), LSFR({0,1,1,0,0,0}, pos), LSFR({0,1,0,0,0,1}, pos), LSFR({1,1,1,1,1,1},pos) };
 	CombFuncReg freg = CombFuncReg(regs,f6);
@@ -76,7 +84,7 @@ int main(int argc, char** argv) {
 	}
 
 	std::cout << "Amount of 1: " << count << std::endl;
-	*/
+	
 	std::vector<LFSR> regs = {
 		LFSR({0,1,0,1,1,1,1,1,1,1,0,0,0,1,0,1,1,0,0,1,1,1,0,0,0,1,1,0,1,0,0,0}, {32,22,2,1}),
 		LFSR({1,0,1,1,1,0,1,0,1,0,0,0,1,1,1,1,1,1,0,1,0,1,0,0,1,0,0,1,1,1,0,1}, { 32,16,7,2 }),
@@ -84,13 +92,13 @@ int main(int argc, char** argv) {
 		LFSR({1,1,0,1,1,1,1,1, 0,0,1,1,0,0,0,1, 1,0,0,0,0,0,0,1, 0,1,1,0,1,0,0}, {31,3})
 	};
 	CombFuncReg cfr = CombFuncReg(regs,f4);
-	for (size_t i = 0; i < 1024*512; i++) {
+	for (size_t i = 0; i < 536870912; i++) {
 		size_t rly = 0;
-		/*for (size_t j = 0; j < 8; j++) {
+		for (size_t j = 0; j < 8; j++) {
 			rly <<= 4;
 			rly += regs[0].shift()*8+regs[1].shift()*4+regs[2].shift()*2+regs[3].shift();
 			//rly += cfr.shift();
-		}*/
+		}
 		
 		unsigned char val =  0;
 		unsigned char mask = 0xFE;
@@ -103,5 +111,22 @@ int main(int argc, char** argv) {
 
 		std::cout << val;
 	}
+	*/
+
+	NFSR nreg = NFSR({1,0,0,1,1}, nonLin);//{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1}, nonLin);
+
+	//std::cout << "Vector of function values" << std::endl;
+	unsigned char m1 = 0x01, m2 = 0x02, m3 = 0x04, m4 = 0x08;
+	/*for (unsigned char i = 0; i < 32; i++) {
+		std::cout << static_cast<bool>(i&m4) << static_cast<bool>(i&m3) << static_cast<bool>(i&m2) << static_cast<bool>(i&m1)<< "\t" <<nonLin({static_cast<bool>(i&m4), static_cast<bool>(i&m3), static_cast<bool>(i&m2), static_cast<bool>(i&m1)})<<std::endl;
+	}*/
+	//std::cout << std::endl;
+
+	//for (size_t i = 0; i < 4194305; i++) {
+	for (size_t i = 0; i < 65;i++) {
+		std::cout << nreg << std::endl;
+		nreg.shift();
+	}
+
 	return 0;
 }
