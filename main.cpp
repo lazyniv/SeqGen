@@ -4,6 +4,7 @@
 #include"NFSR.h"
 #include"FuncReg.h"
 #include"CombFuncReg.h"
+#include"MixedFuncReg.h"
 #include<map>
 #include<stdlib.h>
 
@@ -17,18 +18,21 @@ bool f4(std::vector<bool> val) {
 
 bool nonLin(std::vector<bool> x) {
 	//return 1 ^ x[21] ^ (x[1] & x[2] & x[3] & x[4] & x[5] & x[6] & x[7] & x[8] & x[9] & x[10] & x[11] & x[12] & x[13] & x[14] & x[15] & x[16] & x[17] & x[18] & x[19] & x[20] & x[21]) ^ x[0];// x[3] ^ x[2] ^(x[2] & x[3]) ^ (x[1] & x[3]) ^ (x[1] & x[2]) ^ (x[1] & x[2] & x[3]) ^ x[0];
-	return 1 ^ x[1] ^ (x[1] & x[2] & x[3] & x[4] & x[5]) ^ x[0];
+	return x[21] ^ (!x[1] & !x[2] & !x[3] & !x[4] & !x[5] & !x[6] & !x[7] & !x[8] & !x[9] & !x[10] & !x[11] & !x[12] & !x[13] & !x[14] & !x[15] & !x[16] & !x[17] & !x[18] & !x[19] & !x[20] & !x[21]) ^ x[0];
+	//return 1 ^ x[1] ^ (x[1] & x[2] & x[3]) ^ x[0];
+	//return  1 ^ x[1] ^ (x[1] & x[2]) ^ x[0];
 }
 //x8 & x12
 //n=20 g+x4 | x18 полный
 //n=22 g+x2
+
 int main(int argc, char** argv) {
 
 	freopen("out.txt","w",stdout);
-	/*bool a = false;
+	bool a = false;
 	a ^= true;
 	std::vector<bool> initial = { true,false,false,false,false,true,true,false,true,false,false,true };
-	LFSR reg = LFSR(initial, {12,6,4,1});
+	/*LFSR reg = LFSR(initial, {12,6,4,1});
 	//FuncReg fr = FuncReg(reg, { false,false,false,true });
 	FuncReg afr = FuncReg(reg, f);
 	size_t count = 0;
@@ -113,19 +117,42 @@ int main(int argc, char** argv) {
 	}
 	*/
 
-	NFSR nreg = NFSR({1,0,0,1,1}, nonLin);//{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1}, nonLin);
+	/*NFSR nreg = NFSR({1,0,1}, nonLin);//{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1}, nonLin);
 
-	//std::cout << "Vector of function values" << std::endl;
-	unsigned char m1 = 0x01, m2 = 0x02, m3 = 0x04, m4 = 0x08;
-	/*for (unsigned char i = 0; i < 32; i++) {
-		std::cout << static_cast<bool>(i&m4) << static_cast<bool>(i&m3) << static_cast<bool>(i&m2) << static_cast<bool>(i&m1)<< "\t" <<nonLin({static_cast<bool>(i&m4), static_cast<bool>(i&m3), static_cast<bool>(i&m2), static_cast<bool>(i&m1)})<<std::endl;
-	}*/
+	std::cout << "Vector of function values" << std::endl;
+	*/unsigned char m1 = 0x01, m2 = 0x02, m3 = 0x04, m4 = 0x08;/*
+	for (unsigned char i = 0; i < 8; i++) {
+		std::cout << static_cast<bool>(i&m3) << static_cast<bool>(i&m2) << static_cast<bool>(i&m1)<< "\t" <<nonLin({ static_cast<bool>(i&m3), static_cast<bool>(i&m2), static_cast<bool>(i&m1)})<<std::endl;
+	}
 	//std::cout << std::endl;
 
-	//for (size_t i = 0; i < 4194305; i++) {
+	//for (size_t i = 0; i < 524288; i++) {
 	for (size_t i = 0; i < 65;i++) {
+		//unsigned char wrt = 0;
 		std::cout << nreg << std::endl;
 		nreg.shift();
+		//for (size_t j = 0; j < 8; j++) {
+		//	wrt <<= 1;
+		//	wrt += nreg.shift();
+		//}
+		//std::cout << wrt;
+	}*/
+
+	MixedFuncReg mfr = MixedFuncReg({ new LFSR(initial, {12,6,4,1}), new  NFSR({1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0}, nonLin),
+		new NFSR({1,1,1,0}, [](std::vector<bool> x) {return bool(1^x[0]^x[1]&x[2]&x[3]^ x[1] ^ x[1]&x[3] ^ x[1]&x[2]); }),
+		new LFSR({1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,0}, {31,3}) },
+		[](std::vector<bool> x) {return (bool)(x[0] & x[1] ^ x[2] & x[3]); });
+
+	for (size_t i = 0; i < 297364;i++){	
+		//mfr.shift();
+		unsigned char toOut = 0;
+		for (size_t j = 0; j < 2; j++) {
+			mfr.shift();
+			for (size_t k = 0; k < 4; k++){
+				toOut = (toOut << 1) | mfr.getState()[k];
+			}
+		}
+		std::cout << toOut;
 	}
 
 	return 0;

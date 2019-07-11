@@ -1,11 +1,11 @@
 #pragma once
-#include<vector>
+#include"FSR.h"
 #include<iostream>
 //LSFR stands for " linear feedback shift register"
 
 std::vector<size_t> getPos(std::vector<size_t> deg_list, size_t deg);
 
-class LFSR {
+class LFSR : public FSR{
 	size_t size;
 	std::vector<size_t> pos;
 	std::vector<bool> state; 

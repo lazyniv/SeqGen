@@ -1,7 +1,7 @@
 #pragma once
-#include<vector>
+#include"FSR.h"
 #include<iostream>
-class NFSR {
+class NFSR : public FSR {
 	size_t size;
 	bool(*_f)(std::vector<bool>);
 	std::vector<bool> state;
