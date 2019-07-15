@@ -1,18 +1,13 @@
 #pragma once
 #include<vector>
-#include"LFSR.h"
+#include"FSR.h"
 class CombFuncReg {
-	std::vector<LFSR> regs;
-	bool(*_f)(std::vector<bool>);
-	std::vector<bool> lastv;
+  std::vector<FSR> regs;
+  bool(*_f)(std::vector<bool>);
+  std::vector<bool> lastv;
 public:
-	CombFuncReg(std::vector<LFSR> _regs, bool(*func)(std::vector<bool>)) {
-		regs = _regs;
-		_f = func;
-	}
-	std::vector<LFSR> getRegs() const { return regs; }
-	bool shift();
-	std::vector<bool> getLast() const {
-		return lastv;
-	}
+  CombFuncReg(std::vector<FSR> _regs, bool(*func)(std::vector<bool>));
+  inline auto getRegs() const { return regs; }
+  bool shift();
+  inline auto getLast() const { return lastv; }
 };

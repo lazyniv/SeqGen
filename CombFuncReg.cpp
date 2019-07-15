@@ -1,9 +1,14 @@
 #include"CombFuncReg.h"
 bool CombFuncReg::shift() {
-	std::vector<bool> vars;
-	for (size_t i = 0; i < regs.size(); i++) {
-		vars.push_back(regs[i].shift());
-	}
-	lastv = vars;
-	return _f(vars);
+  std::vector<bool> vars;
+  for (auto i : regs) {
+    vars.push_back(i.shift());
+  }
+  lastv = vars;
+  return _f(vars);
+}
+
+CombFuncReg::CombFuncReg(std::vector<FSR> _regs, bool(*func)(std::vector<bool>)) {
+  regs = _regs;
+  _f = func;
 }
